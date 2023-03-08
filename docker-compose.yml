@@ -1,0 +1,16 @@
+version: '3.7'
+services:
+
+    node:
+        env_file: .env
+        build:
+            dockerfile: ./docker/node/dev/Dockerfile
+        environment:
+            - NODE_ENV=development
+            - WATCHPACK_POLLING=true
+        command: npm start
+        ports:
+            - "${NODE_PORT}:3000"
+        volumes:
+            - .:/app
+            - /app/node_modulesls
