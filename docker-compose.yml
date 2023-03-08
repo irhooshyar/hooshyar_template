@@ -13,4 +13,4 @@ services:
             - "${NODE_PORT}:3000"
         volumes:
             - .:/app
-            - /app/node_modulesls
+            - /app/node_modules

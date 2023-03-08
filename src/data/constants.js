@@ -1,0 +1,1 @@
+export const COOKIES_PREFIX = "Yr@wCB4!BwJ!$URP"
