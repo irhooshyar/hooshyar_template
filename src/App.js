@@ -24,8 +24,8 @@ function App() {
         {/*<Route exact path="/reset-password" component={ResetPassword} />*/}
         <Route path='/login/:target?' element={<Login/>} />
         <Route path='/test' element={<RequireAuth><h2>test</h2></RequireAuth>} />
-        <Route path='*' element={<NotFound/>} />
         <Route path='/' element={<RequireAuth><Home/></RequireAuth>} />
+        <Route path='*' element={<NotFound/>} />
       </Routes>
       {isCookiesConfirmed ?
           "" :

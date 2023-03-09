@@ -2,6 +2,13 @@
   "login": [
     "check bita script functionality",
     "convert Cookie base Session to token based",
-    "user ip"
+    "user ip",
+    "replace get request with post",
+    "remember me not functioning",
+    "show password only functioning once"
+  ],
+  "cookies": [],
+  "header": [
+    "handle options availability with authentication component instead of hard coding"
   ]
 }

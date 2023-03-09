@@ -22,7 +22,7 @@ function Cookies(props) {
 
     return (
         <>
-            <div id="cookieNotice" className="card shadow text-center">
+            <div id="cookieNotice" className="card shadow text-center" style={{height:'auto', position: 'fixed', bottom: '0'}}>
                 <div id="closeIcon" className="closeIcon" style={{display: "none"}}>
                 </div>
                 <div className="title-wrap">
