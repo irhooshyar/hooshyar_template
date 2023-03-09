@@ -1,9 +1,15 @@
 import React, {useEffect} from 'react';
-import {Link} from "react-router-dom";
-import rahbar_profile from "../assets/image/rahbar_profile.png"
-import Cookies from "../components/feature/Cookies";
+import {Link, useNavigate, useParams} from "react-router-dom";
+// import {Helmet} from "react-helmet";
+import logo from "../assets/image/logo.svg"
+import {API_URL, COOKIES_PREFIX} from "../data/constants";
+import {setCookie} from "../utils/cookies";
+// import {appendExternalScript, appendInternalScript} from "../utils/htmlManipulation";
 
-function Login() {
+function Login(props) {
+
+    const navigate = useNavigate();
+    let { target } = useParams();
 
     require('../assets/library/bootstrap-5.1.3.min.css')
     require('../assets/library/bootstrap-icons-1.7.1.css')
@@ -12,44 +18,55 @@ function Login() {
 
     useEffect(() => {
         document.title = 'ورود';
+        // appendExternalScript("../assets/js/Bita.js")
+        // appendInternalScript('initXC(304, "wKxiyjGD2r9Iv3zK4JoAV3qWL0cJlsjG2lkfcT98");')
     }, []);
 
+
     async function onSubmit(e) {
+        console.log("ran")
         e.preventDefault()
-        // const formElements = e.target.elements
-        //
-        // const user_ip = "127.0.0.0"
-        //
-        // const request_link = 'http://' + location.host + "/CheckUserLogin/" + formElements.username.value + "/" + formElements.password.value + "/" + user_ip + "/"
-        // let response = await fetch(request_link);
-        // response = await response.json();
-        //
-        // const messages = document.getElementById("messages");
-        //
-        // if (response.status === "not found" || response.status === "wrong password" ) {
-        //     messages.innerText = "نام کاربری یا رمزعبور اشتباه است"
-        //     messages.classList.add("text-danger")
-        // }
-        // else if (response.status === "not active") {
-        //     messages.innerText = "اطلاعات شما درحال بررسی توسط ادمین است."
-        //     messages.classList.add("text-danger")
-        // }
-        // else if (response.status === "de active") {
-        //     messages.innerText = "درخواست عضویت شما توسط ادمین رد شده است."
-        //     messages.classList.add("text-danger")
-        // }
-        // else if (response.status === "found admin") {
-        //     window.location.href = "{% url 'admin_confirm_waiting_user' %}"
-        // }
-        // else if (response.status === "found user") {
-        //     const username = formElements.username.value;
-        //     // setCookie("username", username, 1)
-        //     window.location.href = "{% url 'index' %}"
-        // }
+
+        const user_ip = "127.0.0.0"
+        const username = document.getElementById("username").value
+        const password = document.getElementById("password").value
+
+        const request_link = API_URL + "/CheckUserLogin/" + username + "/" + password + "/" + user_ip + "/"
+        let response = await fetch(request_link);
+        response = await response.json();
+
+        const messages = document.getElementById("messages");
+
+        if (response.status === "not found" || response.status === "wrong password" ) {
+            messages.innerText = "نام کاربری یا رمزعبور اشتباه است"
+            messages.classList.add("text-danger")
+        }
+        else if (response.status === "not active") {
+            messages.innerText = "اطلاعات شما درحال بررسی توسط ادمین است."
+            messages.classList.add("text-danger")
+        }
+        else if (response.status === "de active") {
+            messages.innerText = "درخواست عضویت شما توسط ادمین رد شده است."
+            messages.classList.add("text-danger")
+        }
+        else if (response.status === "found admin") {
+            window.location.href = "{% url 'admin_confirm_waiting_user' %}"
+        }
+        else if (response.status === "found user") {
+            setCookie(COOKIES_PREFIX + "username", username, 1)
+            navigate("/"+(target || ""))
+        }
     }
 
     return (
         <>
+            {/*<Helmet>*/}
+            {/*    <script src="../assets/js/Bita.js"></script>*/}
+            {/*    <script>*/}
+            {/*        initXC(304, "wKxiyjGD2r9Iv3zK4JoAV3qWL0cJlsjG2lkfcT98");*/}
+            {/*    </script>*/}
+            {/*    <script type="text/javascript" src="http://l2.io/ip.js?var=myip"></script>*/}
+            {/*</Helmet>*/}
             <div className="container mt-5">
                 <div className="row">
                     <div className="col-md-3"></div>
@@ -58,7 +75,7 @@ function Login() {
                         <form id="login" name="login" className="shadow p-4 bg-white" method="POST">
                             <div className="mb-3 text-center">
                                 <img width="170px" style={{}}
-                                     src={rahbar_profile} alt=""/>
+                                     src={logo} alt=""/>
                             </div>
                             <div className="mb-3">
                                 <label htmlFor="username">نام کاربری:</label>
@@ -86,7 +103,7 @@ function Login() {
                             <div className="mb-3" id="messages"></div>
 
                             <div className="mb-3 d-grid gap-2 col-6 mx-auto">
-                                <button className="btn btn-primary" type="submit">ورود</button>
+                                <button className="btn btn-primary" type="submit" onClick={onSubmit}>ورود</button>
                             </div>
                             <hr/>
                             <p className="text-center mb-0">قبلا ثبت‌ نام نکرده‌اید؟

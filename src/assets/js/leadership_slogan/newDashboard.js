@@ -37,15 +37,14 @@ async function new_prof_slogan_year_changed(year) {
     for (let item of Object.keys(response.keyword_repeat)) {
         data.push([item, response.keyword_repeat[item]])
     }
-    NewGaugeChart("word_count_container", {
+    guage_chart("word_count_container", {
         data: data,
         all_data: all_data,
         title: 'توزیع کلیدواژه ها در اسناد حاوی واژه',
-        all_data_tooltip: "اسناد حاوی حداقل واژه",
-        data_tooltip: "اسناد حاوی کلمه",
         size: "full",
-        onClick: (e, data, text) => {
-            click_guage_column(text)
+        onClick: (e, data, index) => {
+            console.log(data)
+            console.log(index)
         }
     })
     create_bars_chart_data(response['year_agg']['approval-year-agg']['buckets'],
@@ -102,6 +101,144 @@ function create_bars_chart_data(all_year, keyword_all_year) {
     newStackedColumnChart("doc_count_container", options)
 }
 
+function guage_chart(container_id, options) {
+    const {chartContainerId, chartDownloadId} = newChartContainer(container_id, options);
+    const palette = anychart.palettes.distinctColors();
+
+    palette.items(['#488FB8', '#B8A948', '#8FB848', '#CDC37F', '#CD7F8A', '#B1CD7F', '#CD7FB1', '#7FB1CD', '#7F8ACD', '#CDC37F', '#B1CD7F']);
+
+    let all_data = options.all_data
+    let chart_data = options.data
+
+    if (chart_data.length === 0) {
+        document.getElementById(chartContainerId).innerText = "هیچ داده ای وجود ندارد"
+        return;
+    }
+
+    let names = [];
+    let data = [];
+    for (let item of chart_data) {
+        names.push(item[0])
+        data.push(item[1])
+    }
+    for (let i = 0; i < names.length; i++) {
+        data.push(all_data)
+    }
+
+    var dataSet = anychart.data.set(data);
+    var makeBarWithBar = function (gauge, radius, i, width) {
+        var stroke = null;
+        gauge
+            .label(i)
+            .text(names[i] + ' ' + Math.ceil(((data[i] / all_data) * 100)) + '%') // color: #7c868e
+            .textDirection("rtl")
+            .fontFamily("vazir")
+            .fontColor('#6C757D')
+
+        gauge
+            .label(i)
+            .hAlign('center')
+            .vAlign('middle')
+            .anchor('right-center')
+            .padding(0, 10)
+            .height(width / 2 + '%')
+            .offsetY(radius + '%')
+            .offsetX(0)
+            .fontFamily("vazir");
+
+        gauge
+            .bar(i)
+            .dataIndex(i)
+            .radius(radius)
+            .width(width)
+            .fill(palette.itemAt(i))
+            .stroke(null)
+            .zIndex(5);
+        gauge
+            .bar(i + 100)
+            .dataIndex(i + (data.length / 2))
+            .radius(radius)
+            .width(width)
+            .fill('#F5F4F4')
+            .stroke(stroke)
+            .zIndex(4);
+
+        return gauge.bar(i);
+    };
+
+
+    anychart.onDocumentReady(function () {
+        var gauge = anychart.gauges.circular();
+        gauge.data(dataSet);
+        gauge
+            .fill('#fff')
+            .stroke(null)
+            .padding(0)
+            .margin(100)
+            .startAngle(0)
+            .sweepAngle(270);
+
+        let tooltip = gauge.tooltip();
+        tooltip.fontFamily("vazir");
+        tooltip.hAlign('center').format("تعداد: {%value}");
+
+        var axis = gauge.axis().radius(100).width(1).fill(null);
+        axis
+            .scale()
+            .minimum(0)
+            .maximum(all_data)
+            .ticks({interval: 1})
+            .minorTicks({interval: 1});
+        axis.labels().enabled(false);
+        axis.ticks().enabled(false);
+        axis.minorTicks().enabled(false);
+
+        const itration = data.length / 2
+        let radius = 100;
+        let width = 75 / itration
+        if (itration === 1) width = 55
+        for (let i = 0; i < itration; i++) {
+            makeBarWithBar(gauge, radius, i, width);
+            radius = radius - (100 / itration)
+        }
+        gauge.margin(50);
+
+        if (options.onClick) {
+            gauge.listen("mouseOver", function () {
+                document.body.style.cursor = "pointer";
+            });
+            gauge.listen("mouseOut", function () {
+                document.body.style.cursor = "auto";
+            });
+
+            gauge.listen('Click', (e) => {
+                const click_tag = e.domTarget.tag;
+                let index = click_tag["index"]
+                if (index >= options.data.length) {
+                    index = index - options.data.length
+                }
+                options.onClick(e, options.data, index)
+            })
+        }
+
+        // gauge
+        //     .title()
+        //     .text(
+        //         options.title
+        //     )
+        //     .useHtml(true);
+        // gauge
+        //     .title()
+        //     .enabled(true)
+        //     .hAlign('center')
+        //     .padding(0)
+        //     .margin([0, 0, 20, 0]);
+
+        gauge.container(chartContainerId);
+        gauge.draw();
+    });
+}
+
 async function click_stack_based_column(key, slogan_year, selected_year, chart_name) {
     startBlockUI("کلیک روی نمودار")
     const request_link = 'http://' + location.host + "/slogan_stackBased_get_information/" + key + "/" + slogan_year + "/" + selected_year + "/";
@@ -140,75 +277,7 @@ async function click_stack_based_column(key, slogan_year, selected_year, chart_n
         "body_id": "ChartModalBodyText_2",
         "modal_load_more_btn_id": "LoadMoreDocuments_2",
         "result_size_container_id": "DocsCount_2",
-        "result_size_message": "سند",
-        "list_type": "ordered",
-        "custom_body_function": null,
-        "body_parameters": null,
-        "link_page": "information",
-
-    }
-
-    segmentation_config = {
-        "parameters": ["احساس بسیار منفی", "بدون ابراز احساسات", "احساس منفی", "احساس خنثی یا ترکیبی از مثبت و منفی", "احساس مثبت", "احساس بسیار مثبت"],
-        "keyword": "sentiment",
-        "enable": false,
-        "aggregation_keyword": "rahbari-sentiment-agg"
-    }
-
-
-    column_interactivity_obj = new ColumnInteractivity("documents",
-        request_configs, export_configs, modal_configs, highlight_configs, segmentation_config)
-
-    result = await column_interactivity_obj.load_content();
-    console.log(result)
-
-    $('#ChartModalBtn_2').click()
-    stopBlockUI('کلیک روی نمودار');
-
-    $('#ExportExcel_2').on('click', async function () {
-        await column_interactivity_obj.download_content();
-    })
-}
-
-async function click_guage_column(key) {
-    startBlockUI("کلیک روی نمودار")
-    const request_link = 'http://' + location.host + "/slogan_gauge_get_information/" + key + "/";
-
-    document.getElementById("ChartModalBodyText_2").innerHTML = ""
-    document.getElementById("ChartModalHeader_2").innerHTML = ""
-
-
-    // set modal header
-    modal_header = "اسناد حاوی کلمه " + key + " از سال 1375"
-    document.getElementById("ChartModalHeader_2").innerHTML = modal_header
-    // define request link without curr_page & search_result_size
-
-    request_configs = {
-        "link": request_link,
-        "search_result_size": SEARCH_RESULT_SIZE,
-        "max_result_window": MAX_RESULT_WINDOW,
-        "data_type": "url_parameters",
-        "form_data": null
-    }
-
-    export_link = 'http://' + location.host + "/slogan_gauge_information_export/" + key + "/";
-
-    export_configs = {
-        "link": export_link,
-        "btn_id": "ExportExcel_2"
-    }
-
-    highlight_configs = {
-        "parameters": null,
-        "highlight_enabled": false,
-        "custom_function": null
-    }
-
-    modal_configs = {
-        "body_id": "ChartModalBodyText_2",
-        "modal_load_more_btn_id": "LoadMoreDocuments_2",
-        "result_size_container_id": "DocsCount_2",
-        "result_size_message": "سند",
+        "result_size_message": "خبر",
         "list_type": "ordered",
         "custom_body_function": null,
         "body_parameters": null,

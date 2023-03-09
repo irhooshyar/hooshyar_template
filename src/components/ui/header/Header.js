@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from "react-router-dom";
 
-import rahbar_profile1 from "../../../assets/image/rahbar_profile1.png"
+import logo from "../../../assets/image/خبرکاو.png"
 
 function Header(props) {
     require('../../../assets/library/bootstrap-icons-1.3.0.css')
@@ -14,9 +14,9 @@ function Header(props) {
         <>
             <nav dir="rtl" className="navbar nav_menu navbar-expand-lg fixed-top p-0 mt-0">
             <div className="container-fluid pr-0 mx-0">
-                <Link to={'/'} className="navbar-brand mr-0 px-1" id="brand_name" style={{marginLeft:"25px"}}>
-                    <img width="50px" src={rahbar_profile1} alt=""/>
-                        رهنمود
+                <Link className="navbar-brand mr-0 px-1" to="/" id="brand_name" style={{marginLeft:"25px"}}>
+                    <img width="100px"
+                         src={logo} alt=""/>
                 </Link>
 
                 <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"

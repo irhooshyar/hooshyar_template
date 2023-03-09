@@ -128,10 +128,8 @@ class MyGraph {
             });
 
             // Width and Height
-            // const width = this.container_width
-            // const height = this.container_height
-            const width = document.getElementById(_this.container_id).clientWidth;
-            const height = document.getElementById(_this.container_id).clientHeight;
+            let width = document.getElementById(_this.container_id).clientWidth;
+            let height = document.getElementById(_this.container_id).clientHeight;
 
             // Create Graph Object
             this.graph_object = new G6.Graph({
@@ -205,7 +203,6 @@ class MyGraph {
                 window.onresize = function (event) {
                     const new_width = document.getElementById(_this.container_id).clientWidth;
                     const new_height = document.getElementById(_this.container_id).clientHeight;
-                    console.log(new_width, new_height)
                     _this.graph_object.changeSize(new_width, new_height);
                 };
             }
@@ -597,10 +594,7 @@ class MyGraph {
           $('#'+this.edges_table).empty();
 
           this.graph_object.getEdges().forEach((edge) => { edge.show() })
-          // this.graph_object.getNodes().forEach((node) => { node.show() })
-          // back to original color
-          this.graph_object.getNodes().forEach((node) => { node.update({style: {fill: "#009999"}}) })
-
+          this.graph_object.getNodes().forEach((node) => { node.show() })
 
           const min_degree = this.min_selected_degree
           const max_degree = this.max_selected_degree
@@ -624,20 +618,13 @@ class MyGraph {
               this.graph_object.getNodes().forEach((node) => {
                 const node_degree = this.graph_object.getNodeDegree(node._cfg.model.id, 'total');
                 if (node_degree < min_degree || node_degree > max_degree) {
-                    node = this.graph_object.findById(node._cfg.model.id)
-                    // this.graph_object.findById(node._cfg.model.id).hide();
-                    // change color of selected node into light grey
-                    node.update({
-                        style: {
-                            fill: "#e6e6e6"
+                    this.graph_object.findById(node._cfg.model.id).hide();
+
+                    this.graph_object.getEdges().forEach((edge) => {
+                        if (edge._cfg.model.source === node._cfg.model.id || edge._cfg.model.target === node._cfg.model.id) {
+                            edge.hide()
                         }
-                    });
-                    
-                    // this.graph_object.getEdges().forEach((edge) => {
-                    //     if (edge._cfg.model.source === node._cfg.model.id || edge._cfg.model.target === node._cfg.model.id) {
-                    //         edge.hide()
-                    //     }
-                    // })
+                    })
                 }
             });
           }

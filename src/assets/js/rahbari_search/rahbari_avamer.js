@@ -3,7 +3,7 @@ init()
 
 function init() {
     const menu_columns = {
-        "rahbari_type": 'نوع سند',
+        "rahbari_type": 'نوع خبر',
         "rahbari_date": 'تاریخ',
         "rahbari_labels": 'برچسب'
     }
@@ -25,10 +25,10 @@ async function get_rahbari_rule(country_id, type_id, label_name, from_year, to_y
 
     const paragraph_tab = document.getElementById("paragraph_rule_info_tab")
     if (paragraph_tab.classList.contains("active")) {
-        document.getElementById("SearchResultLable").innerText = "تعداد کل نتایج: " + total_hits + " سند"
+        document.getElementById("SearchResultLable").innerText = "تعداد کل نتایج: " + total_hits + " خبر"
     }
     paragraph_tab.addEventListener("click", () => {
-        document.getElementById("SearchResultLable").innerText = "تعداد کل نتایج: " + total_hits + " سند"
+        document.getElementById("SearchResultLable").innerText = "تعداد کل نتایج: " + total_hits + " خبر"
     })
 
     update_table_pagination_input(curr_page, total_hits, "RuleTablePaginationInput", "rule_from_page", "rule_total_page")
@@ -62,7 +62,7 @@ function generate_rahbari_rule_rows(results, search_type, text) {
         const detail_function = `DetailFunction2('${doc_id}','${doc_name}','${search_type}','${text}', ${1})`;
         const detail = '<button type="button" class="btn modal_btn" data-bs-toggle="modal" ' + ' onclick="' + detail_function + '" data-bs-target="#myModal" ' + is_disabled + '>جزئیات</button>'
 
-        const document_link = 'http://' + location.host + "/document_profile/?id=" + doc_id
+        const document_link = 'http://' + location.host + "/information/?id=" + doc_id
         const doc_name_link = '<a target="blank" href="' + document_link + '">' + doc_name + "</a>"
 
         const row = {
@@ -102,13 +102,13 @@ function show_rule_table_results() {
         }
     }, {
         "name": "doc_name",
-        "title": "نام سند",
+        "title": "نام خبر",
         "style": {
             "width": "35%"
         }
     }, {
         "name": "rahbari_type",
-        "title": "نوع سند",
+        "title": "نوع خبر",
         "style": {
             "width": "10%"
         }
@@ -160,7 +160,7 @@ function show_rule_table_results() {
         "sorting": {
             "enabled": true
         },
-        "empty": "سندی یافت نشد.",
+        "empty": "خبری یافت نشد.",
 
         "columns": RuleTableColumns,
         "rows": rule_rows

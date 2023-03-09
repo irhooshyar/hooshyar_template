@@ -1,11 +1,20 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import Header from "../components/ui/header/Header";
 
 function Home(props) {
     require('../assets/styles/index2.css');
+
+    useEffect(() => {
+        document.title = 'خبرکاو';
+        // appendExternalScript("../assets/js/Bita.js")
+        // appendInternalScript('initXC(304, "wKxiyjGD2r9Iv3zK4JoAV3qWL0cJlsjG2lkfcT98");')
+    }, []);
+
+
     return (
         <>
             <Header/>
+            <h2>home</h2>
         </>
 
         // <>

@@ -1,156 +1,236 @@
+let similrity_result = []
+SOURCE_IMAGE_TAG = {
+    "تابناک- تست": '<img width="60px" class="rounded-pill shadow" src="../../../static/icons/logo/tabnak.jfif" alt="تابناک">',
+    "تابناک": '<img width="60px" class="rounded-pill shadow" src="../../../static/icons/logo/tabnak.jfif" alt="تابناک">',
+    "خبر آنلاین": '<img width="60px" class="rounded-pill shadow" src="../../../static/icons/logo/khabar-online.png" alt="خبر آنلاین">',
+    "عصر ایران": '<img width="60px" class="rounded-pill shadow" src="../../../static/icons/logo/asriran.jfif" alt="عصر ایران">',
+    "ایسنا": '<img width="45px" class="rounded-pill shadow" src="../../../static/icons/logo/isna.jfif" alt="ایسنا">'
+}
+similarity_init();
+
+function similarity_init() {
+    const menu_columns = {
+        "document_name": 'عنوان خبر',
+        "country_name": 'مرجع خبر',
+        "document_date": 'تاریخ خبر',
+        "document_time": 'ساعت خبر',
+        "category_name": 'دسته خبر',
+        "subject_name": 'موضوع خبر',
+        "BM25_similarity": 'مشابهت بر اساس BM25',
+    }
+    append_column(menu_columns, "SimilarityColumnSelect")
+}
+
 async function BM25Similarity() {
     try {
+        similrity_result = []
         const document_id = document.getElementById("document").value;
         request_link = 'http://' + location.host + "/GetDocumentsSimilarity/" + document_id + "/";
         response = await fetch(request_link).then(response => response.json());
         response = response["docs"]
-        similrity_result = []
+
 
         document.getElementById("SimilarityTable").innerHTML = "";
         for (let i = 0; i < response.length; i++) {
             let BM25_similarity = "-"
-            let DFR_similarity = "-"
-            let DFI_similarity = "-"
+            // let DFR_similarity = "-"
+            // let DFI_similarity = "-"
             const index = i + 1;
 
             const curr_document_id = response[i]["document_id"]
-            const document_name = response[i]["name"]
-            const approval_date = response[i]["rahbari_date"]
-            const subject_name = response[i]["subject_name"] ?? "-"
+            const document_name = response[i]["document_name"]
+            const approval_date = response[i]["document_date"]
+            const country_type = SOURCE_IMAGE_TAG[response[i]["country_name"]]
+            const document_time = response[i]["document_time"]
+            const category_name = response[i]["category_name"]
+            const subject_name = response[i]["subject_name"]
+            // const subject_name = response[i]["subject_name"] ?? "-"
 
             BM25_similarity = Math.round(response[i]["BM25_score"] * 100) / 100
-            DFR_similarity = Math.round(response[i]["DFR_score"] * 100) / 100
-            DFI_similarity = Math.round(response[i]["DFI_score"] * 100) / 100
+            // DFR_similarity = Math.round(response[i]["DFR_score"] * 100) / 100
+            // DFI_similarity = Math.round(response[i]["DFI_score"] * 100) / 100
 
-            let mean_value = (BM25_similarity + DFR_similarity + DFI_similarity) / 3
+            // let mean_value = (BM25_similarity + DFR_similarity + DFI_similarity) / 3
 
             const book_link = 'http://' + location.host + "/document_profile?id=" + curr_document_id
             const name = "<a target='_blank' href=" + book_link + ">" + document_name + "</a>"
 
-            const modal_function = "detailFunction('" + curr_document_id + "','" + document_name + "')"
+            const modal_function = "detailFunction('" + curr_document_id + "','" + document_name + "','" + response[i]["country_name"] + "')"
             const detail = '<button type="button" class="btn modal_btn" onclick="' + modal_function + '" data-bs-target="#ab">جزئیات</button>'
 
 
             const row = {
                 "index": index,
                 "document_name": name,
-                "rahbari_date": approval_date,
+                "document_date": approval_date,
                 "BM25_similarity": BM25_similarity,
-                "DFR_similarity": DFR_similarity,
-                "DFI_similarity": DFI_similarity,
-                "mean": parseFloat(mean_value.toFixed(2)),
+                "country_name": country_type,
+                "document_time": document_time,
+                "category_name": category_name,
+                "subject_name": subject_name,
+                // "DFR_similarity": DFR_similarity,
+                // "DFI_similarity": DFI_similarity,
+                // "mean": parseFloat(mean_value.toFixed(2)),
                 "detail": detail,
             }
 
             similrity_result.push(row)
         }
 
-        $('#SimilarityTable').empty();
-        $('.SimilarityTable').footable({
-            "paging": {
-                "enabled": true,
-                strings: {
-                    first: '»',
-                    prev: '›',
-                    next: '‹',
-                    last: '«'
-                }
-            },
-            "filtering": {
-                "enabled": false
-            },
-            "sorting": {
-                "enabled": true
-            },
-            "empty": "سندی یافت نشد.",
-            "columns": [{
-                "name": "index",
-                "title": "ردیف",
-                "breakpoints": "xs sm",
-                "type": "number",
-                "style": {
-                    "width": "5%"
-                }
-            }, {
-                "name": "document_name",
-                "title": "نام سند",
-                "style": {
-                    "width": "30%"
-                }
-            }, {
-                "name": "rahbari_date",
-                "title": "تاریخ تصویب",
-                "style": {
-                    "width": "10%"
-                }
-            }, {
-                "name": "BM25_similarity",
-                "title": "مشابهت بر اساس BM25",
-                "style": {
-                    "width": "10%"
-                }
-            },
-                {
-                    "name": "DFR_similarity",
-                    "title": "مشابهت بر اساس DFR",
-                    "style": {
-                        "width": "10%"
-                    }
-                },
-                {
-                    "name": "DFI_similarity",
-                    "title": "مشابهت بر اساس DFI",
-                    "style": {
-                        "width": "10%"
-                    }
-                },
-                {
-                    "name": "mean",
-                    "title": "میانگین شباهت ها",
-                    "style": {
-                        "width": "10%"
-                    }
-                },
-                {
-                    "name": "detail",
-                    "title": "جزییات",
-                    "style": {
-                        "width": "10%"
-                    }
-                },
+        similarity_table_changed()
 
-            ],
-            "rows": similrity_result
-        });
     } catch (e) {
         console.log(e)
     }
 }
 
-async function detailFunction(select_document_id, select_document_name) {
+async function similarity_tableExportExcel() {
+    let csv = FooTable.get('#SimilarityTable').toCSV();
+    const btn_regex = new RegExp('<button.*</button>', 'g')
+    // const link_regex = new RegExp('<a.*\>', 'g')
+    const link_regex_end = new RegExp('</a>', 'g')
+    const tag_regex = new RegExp('<a[^>]*>', 'g')
+    csv = csv.replaceAll("#", "")
+    csv = csv.replaceAll(btn_regex, "")
+    csv = csv.replaceAll(tag_regex, "")
+    csv = csv.replaceAll(link_regex_end, "")
+    const document_name = document.getElementById('document_select').title
+    let save_file_name = "اخبار مشابه خبر {" + document_name + "}"
+
+    let csvContent = "data:text/csv;charset=utf-8,%EF%BB%BF" + encodeURI(csv);
+    const link = document.createElement("a");
+    link.setAttribute("href", csvContent);
+    link.setAttribute("download", save_file_name + ".csv");
+    document.body.appendChild(link);
+    link.click()
+}
+
+function similarity_table_changed() {
+    let selected_columns = ["index", "document_name", "detail"]
+    selected_columns = find_selected_column(selected_columns, "SimilarityColumnSelect")
+
+    const similarity_columns = [{
+        "name": "index",
+        "title": "ردیف",
+        "breakpoints": "xs sm",
+        "type": "number",
+        "style": {
+            "width": "5%"
+        }
+    }, {
+        "name": "country_name",
+        "title": "مرجع خبر",
+        "style": {
+            "width": "10%"
+        }
+    }, {
+        "name": "document_name",
+        "title": "عنوان خبر",
+        "style": {
+            "width": "30%"
+        }
+    },
+        {
+            "name": "subject_name",
+            "title": "موضوع خبر",
+        },
+        {
+            "name": "category_name",
+            "title": "دسته خبر",
+        },
+
+        {
+            "name": "document_date",
+            "title": "تاریخ خبر",
+            "style": {
+                "width": "10%"
+            }
+        },
+        {
+            "name": "document_time",
+            "title": "ساعت خبر",
+            "style": {
+                "width": "10%"
+            }
+        },
+        {
+            "name": "BM25_similarity",
+            "title": "مشابهت بر اساس BM25",
+            "style": {
+                "width": "10%"
+            }
+        },
+
+        // {
+        //     "name": "DFI_similarity",
+        //     "title": "مشابهت بر اساس DFI",
+        //     "style": {
+        //         "width": "10%"
+        //     }
+        // },
+        // {
+        //     "name": "mean",
+        //     "title": "میانگین شباهت ها",
+        //     "style": {
+        //         "width": "10%"
+        //     }
+        // },
+        {
+            "name": "detail",
+            "title": "جزییات",
+            "style": {
+                "width": "10%"
+            }
+        },
+
+    ]
+
+    if (!selected_columns.includes("all")) {
+        for (let column of similarity_columns) {
+            if (selected_columns.includes(column["name"])) {
+                column["visible"] = true
+            } else {
+                column["visible"] = false
+            }
+        }
+    }
+
+    $('#SimilarityTable').empty();
+    $('.SimilarityTable').footable({
+        "paging": {
+            "enabled": true,
+            strings: {
+                first: '«',
+                prev: '‹',
+                next: '›',
+                last: '»'
+            }
+        },
+        "filtering": {
+            "enabled": false
+        },
+        "sorting": {
+            "enabled": true
+        },
+        "empty": "خبری یافت نشد.",
+        "columns": similarity_columns,
+        "rows": similrity_result
+    });
+}
+
+async function detailFunction(select_document_id, select_document_name, country_name) {
     startBlockUI()
     document.getElementById("BM25_dest_document").innerHTML = ""
-    document.getElementById("DFI_dest_document").innerHTML = ""
-    document.getElementById("DFR_dest_document").innerHTML = ""
-
     document.getElementById("BM25_source_document").innerHTML = ""
-    document.getElementById("DFI_source_document").innerHTML = ""
-    document.getElementById("DFR_source_document").innerHTML = ""
 
     const header = document.getElementById("document_similarity_detail_ModalHeader");
     const main_document_name = document.getElementById('document_select').title
     const main_document_id = document.getElementById("document").value
 
-    header.innerText = `جزییات شباهت سند «${main_document_name}» و «${select_document_name}»`
+    header.innerText = `جزییات شباهت اخبار «${main_document_name}» و «${select_document_name}»`
 
-    const BM25_request_link = 'http://' + location.host + "/similarityDetail/" + main_document_id + "/" + select_document_id + "/BM25/";
-    const DFI_request_link = 'http://' + location.host + "/similarityDetail/" + main_document_id + "/" + select_document_id + "/DFI/";
-    const DFR_request_link = 'http://' + location.host + "/similarityDetail/" + main_document_id + "/" + select_document_id + "/DFR/";
-
+    const BM25_request_link = 'http://' + location.host + "/similarityDetail/" + main_document_id + "/" + select_document_id + "/" + country_name + "/";
     let BM25_response = fetch(BM25_request_link).then(response => response.json());
-    let DFI_response = fetch(DFI_request_link).then(response => response.json());
-    let DFR_response = fetch(DFR_request_link).then(response => response.json());
-
     BM25_response = await BM25_response;
 
     let source_html = ""
@@ -167,29 +247,10 @@ async function detailFunction(select_document_id, select_document_name) {
         document.getElementById("BM25_dest_document").innerHTML += "<p class='lh-lg'>" + paragraph + "</p>"
     }
 
-    DFI_response = await DFI_response
-    const DFI_similarity_result = DFI_response['similarity_result'][0]['highlight']['attachment.content'][0]
-    const DFI_dest_doc_paragraphs = DFI_similarity_result.split("\n")
-    for (let paragraph of DFI_dest_doc_paragraphs) {
-        document.getElementById("DFI_dest_document").innerHTML += "<p class='lh-lg'>" + paragraph + "</p>"
-    }
-
-    DFR_response = await DFR_response
-    const DFR_similarity_result = DFR_response['similarity_result'][0]['highlight']['attachment.content'][0]
-    const DFR_dest_doc_paragraphs = DFR_similarity_result.split("\n")
-    for (let paragraph of DFR_dest_doc_paragraphs) {
-        document.getElementById("DFR_dest_document").innerHTML += "<p class='lh-lg'>" + paragraph + "</p>"
-    }
-
     source_html = "<p class=\"text-center\">«" + main_document_name + "»</p>" + source_html
 
-    document.getElementById("DFR_dest_document").innerHTML = "<p class=\"text-center\">«" + select_document_name + "»</p>" + document.getElementById("DFR_dest_document").innerHTML
-    document.getElementById("DFI_dest_document").innerHTML = "<p class=\"text-center\">«" + select_document_name + "»</p>" + document.getElementById("DFI_dest_document").innerHTML
     document.getElementById("BM25_dest_document").innerHTML = "<p class=\"text-center\">«" + select_document_name + "»</p>" + document.getElementById("BM25_dest_document").innerHTML
-
     document.getElementById("BM25_source_document").innerHTML = source_html
-    document.getElementById("DFI_source_document").innerHTML = source_html
-    document.getElementById("DFR_source_document").innerHTML = source_html
 
     stopBlockUI()
     $("#document_similarity_detail_modal_btn").click()
