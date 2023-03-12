@@ -28,8 +28,8 @@ function Login(props) {
         e.preventDefault()
 
         const user_ip = "127.0.0.0"
-        const username = document.getElementById("username").value
-        const password = document.getElementById("password").value
+        const username = (document.getElementById("username") as HTMLInputElement).value
+        const password = (document.getElementById("password") as HTMLInputElement).value
 
         const request_link = API_URL + "/CheckUserLogin/" + username + "/" + password + "/" + user_ip + "/"
         let response = await fetch(request_link);
@@ -37,22 +37,22 @@ function Login(props) {
 
         const messages = document.getElementById("messages");
 
-        if (response.status === "not found" || response.status === "wrong password" ) {
+        if (response.status.toString() === "not found" || response.status.toString() === "wrong password" ) {
             messages.innerText = "نام کاربری یا رمزعبور اشتباه است"
             messages.classList.add("text-danger")
         }
-        else if (response.status === "not active") {
+        else if (response.status.toString() === "not active") {
             messages.innerText = "اطلاعات شما درحال بررسی توسط ادمین است."
             messages.classList.add("text-danger")
         }
-        else if (response.status === "de active") {
+        else if (response.status.toString() === "de active") {
             messages.innerText = "درخواست عضویت شما توسط ادمین رد شده است."
             messages.classList.add("text-danger")
         }
-        else if (response.status === "found admin") {
+        else if (response.status.toString() === "found admin") {
             window.location.href = "{% url 'admin_confirm_waiting_user' %}"
         }
-        else if (response.status === "found user") {
+        else if (response.status.toString() === "found user") {
             setCookie(COOKIES_PREFIX + "username", username, 1)
             navigate("/"+(target || ""))
         }

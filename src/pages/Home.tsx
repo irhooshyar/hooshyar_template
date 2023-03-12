@@ -1,7 +1,7 @@
 import React, {useEffect} from 'react';
 import Header from "../components/ui/header/Header";
 
-function Home(props) {
+function Home() {
     require('../assets/styles/index2.css');
 
     useEffect(() => {

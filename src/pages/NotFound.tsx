@@ -1,6 +1,6 @@
 import React, {useEffect} from 'react';
 
-function NotFound(props) {
+function NotFound() {
 
     useEffect(() => {
         document.title = 'پیدا نشد';

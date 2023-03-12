@@ -4,7 +4,7 @@ import {COOKIES_PREFIX} from "../data/constants";
 import {getCookie} from "../utils/cookies"
 import {Navigate} from "react-router-dom";
 
-const RequireAuth: FC<{ children: React.ReactElement }> = ({ children }) => {
+const RequireAuth: FC<{ children: any }> = ({ children }) => {
     
     function useLoginStatus() {
         if (getCookie(COOKIES_PREFIX + "username") === "")
