@@ -2,7 +2,6 @@ import React, {useEffect} from 'react';
 import Header from "../components/ui/header/Header";
 
 function Home() {
-    require('../assets/styles/index2.css');
 
     useEffect(() => {
         document.title = 'خبرکاو';
